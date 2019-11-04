@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RummyAPI", "RummyAPI\RummyAPI.csproj", "{EB1EDC48-139A-4A5A-B0B0-9FEB0B64216F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EB1EDC48-139A-4A5A-B0B0-9FEB0B64216F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB1EDC48-139A-4A5A-B0B0-9FEB0B64216F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB1EDC48-139A-4A5A-B0B0-9FEB0B64216F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB1EDC48-139A-4A5A-B0B0-9FEB0B64216F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {45583844-DDC1-4E44-A324-DD32AAD14AC1}
+	EndGlobalSection
+EndGlobal
