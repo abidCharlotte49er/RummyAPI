@@ -1,0 +1,1 @@
+{"Players":[{"Id":1,"Name":"Admin","IsActive":false,"IsDropped":false,"Position":0,"IsMyTurn":false,"CurrentGameCount":0},{"Id":2,"Name":"Abid","IsActive":true,"IsDropped":false,"Position":1,"IsMyTurn":false,"CurrentGameCount":0},{"Id":3,"Name":"Buddu","IsActive":true,"IsDropped":false,"Position":2,"IsMyTurn":false,"CurrentGameCount":0}],"Id":1,"Name":"Rummy"}
