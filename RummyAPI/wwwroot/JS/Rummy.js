@@ -8,9 +8,9 @@
 
 $(document).ready(function () {
     RummyApp.InitializeGameSetup(); //Initializes game setup, decks, players, all variables 
-    RummyApp.StartNextGame();//WE are calling this for now 
     $("#BtnStartNewGame").on("click", function () { RummyApp.StartNextGame(); }); 
     $("#BtnShowAllHands").on("click", function () { RummyApp.ShowAllHands(); }); 
+
 }); 
 
 RummyApp.InitializeGameSetup = function () {
@@ -83,6 +83,21 @@ RummyApp.ShowAllHands = function () {
                 paper.addEventListener('touchend', release);
                 RummyApp.y = RummyApp.y;
                 RummyApp.x = RummyApp.x + 2;
+                paper.setAttribute("data-flip", "flipped");
+
+                $(paper).draggable({
+                    cursor: 'move',
+                    //revert: true,
+                    start: function (event, ui) {
+                       // ui.helper.data('dropped', false);
+                    },
+                    stop: function (event, ui) {
+                       /* if (ui.helper.data('dropped') === false) {
+                            ui.helper.removeClass("snappedCard");
+                            console.log(ui.helper);
+                        }*/
+                    }
+                });
             }
             else {
                 l("card not defined"); 
