@@ -42,26 +42,26 @@ article {
     border: 7px solid white;
     margin: 0;
     padding: 0;
-    width: 200px;
-    height: 300px;
+    width: 120px;
+    height: 160px;
 }
 
 h2 {
-    margin: 1.25em 0;
-    font-size: 80px;
-    line-height: 1.2;
+    margin: 1.85em 0;
+    font-size: 32px;
+    line-height: 1;
     text-align: center;
     pointer-events: none;
 }
 
 .Joker {
     margin: .6em 0;
-    font-size: 128px;
+    font-size: 72px;
 }
 
 small {
     margin: 0;
-    font-size: 32pt;
+    font-size: 18px;
     line-height: 1;
     text-align: center;
     pointer-events: none;
@@ -72,7 +72,7 @@ small {
 
 bottom {
     margin: 0;
-    font-size: 32pt;
+    font-size: 18px;
     line-height: 1;
     text-align: center;
     pointer-events: none;
@@ -115,24 +115,34 @@ article:hover input {
         color: red;
     }
 
-#Decks {
+#Decks, #AllHands {
     /**/ position: relative;
     display: block;
-    height: 330px;
+    height: 210px;
 }
 
 .Deck {
     height: 100%;
 }
 
-#MyHand {
+.handLabel{
+    position: relative; 
+    color: #FFF; 
+    font-size: 24px; 
+}
+#HandHolder {
+    display: flex;
+    justify-content: center;
+}
+
+#MyHand, .Hand {
     /**/ position: relative;
     display: block;
-    height: 330px;
+    height: 210px;
 }
 
 #CardsHolder {
-    height: 330px;
+    height: 210px;
 }
 
 .dropabbleArea {
@@ -140,7 +150,24 @@ article:hover input {
     display: inline-block;
     overflow: hidden;
     margin-right: 0px;
-    height: 300px;
+    height: 160px;
     min-height: 100px;
-    width: 60px;
+    width: 4em;
+}
+
+.snappedCard{
+width: 48px; 
+overflow: hidden; 
+}
+
+.snappedCard input[type="button"]{
+    display: none; 
+}
+
+.snappedCard small, .snappedCard bottom{
+font-size: 24px; 
+}
+.snappedCard h2{
+    font-size: 24px;
+    margin: 2.75em 0;
 }

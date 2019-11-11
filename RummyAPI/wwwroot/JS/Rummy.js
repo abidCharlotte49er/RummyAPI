@@ -1,116 +1,125 @@
-﻿var Rummy = {
-    suit: ['♥', '♦', '♠', '♣'],
-    card: ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
-    joker: ['🃏'],
-    shuffle: [],
+﻿var RummyApp = {
     selected: '',
     size: 0,
     index: 100,
     x: 30,
     y: 20
-};
+}; 
 
 $(document).ready(function () {
-    buildDeck(); // Build Deck when DOM is ready 
+    RummyApp.InitializeGameSetup(); //Initializes game setup, decks, players, all variables 
+    RummyApp.StartNextGame();//WE are calling this for now 
+    $("#BtnStartNewGame").on("click", function () { RummyApp.StartNextGame(); }); 
+    $("#BtnShowAllHands").on("click", function () { RummyApp.ShowAllHands(); }); 
+}); 
 
-    $("article").draggable({
-        cursor: 'move',
-        revert: true
-    });
-});
+RummyApp.InitializeGameSetup = function () {
+    RummyApp.DeckCount = 2;
+    RummyApp.PlayerNamesString = "Baji, Basheer, Abid, Azim, Ameem";
+    RummyApp.CutOffWeight = 250,
+        RummyApp.DropWeight = 20;
+    RummyApp.MiddleDropWeight = 40;
+    const { DeckCount, PlayerNamesString, CutOffWeight, DropWeight, MiddleDropWeight } = RummyApp;
 
+    var pool = new Pool(DeckCount, PlayerNamesString, CutOffWeight, DropWeight, MiddleDropWeight);
 
-$(".dropabbleArea").droppable({
-    accept: 'article',
-    hoverClass: 'hovered',
-    drop: handleCardDrop
-});
+    RummyApp.Pool = pool;
 
-function handleCardDrop(event, ui) {
-    ui.draggable.position({
-        of: $(this), my: 'left top', at: 'left top'
-    });
-    ui.draggable.css({ "width": "60px", "overflow": "hidden" });
-    ui.draggable.draggable('option', 'revert', false);
-}
+   // l(RummyApp);
+}; 
 
-function buildDeck() {
-    ResetGame();
+RummyApp.StartNextGame = function () {
+    var currentGame = RummyApp.Pool.startNextGame();
+    RummyApp.CurrentGame = currentGame;
+    currentGame.cutDeck(); // At this point of time Players have cards
 
-    for (i = 0; i < Rummy.suit.length; i++) {
-        for (j = 0; j < Rummy.card.length; j++) {
-            Rummy.shuffle.push([Rummy.suit[i], Rummy.card[j]]);
-            Rummy.size = Rummy.shuffle.length;
-        }
-    }
+    l(RummyApp);
+}; 
 
-    Rummy.shuffle.push([Rummy.joker[0], 'Joker']);
-    Rummy.shuffle.push([Rummy.joker[0], 'Joker']);
-    Rummy.size = Rummy.shuffle.length;
-    // console.log(shuffle);
+RummyApp.ShowAllHands = function () {
+    l(RummyApp.CurrentGame.players); 
+    RummyApp.CurrentGame.players.forEach(function (player, i) {
+        l(player.name); 
+        l($("#AllHands")); 
+        $("#AllHands").append(`<div id="${player.position}Hand" class="Hand">`).append(`<div class="handLabel">${player.name}'s Hand</div>`); 
 
-    $("#Decks").append($("<div class='Deck'>"));
+        player.cards.forEach(function (card,i) {
+            l(i); 
+            l(card); 
 
-    for (k = 0; k < Rummy.size; k++) {
-        var pick = Math.floor(Math.random() * Rummy.shuffle.length);
+            if (card) {
+                var paper = document.createElement('article');
 
-
-        var paper = document.createElement('article');
-
-        //console.log(shuffle[pick][1]);
-        if (Rummy.shuffle[pick][1] === "Joker") {
-            paper.innerHTML = '\
+                if (card.face === "X") {
+                    paper.innerHTML = '\
                   <input type=button onclick=flip(this.parentNode) ontouchstart=flip(this.parentNode)>\
-                  <small>'+ Rummy.shuffle[pick][1] + '</small>\
-                  <h2 class="Joker">'+ Rummy.shuffle[pick][0] + '</h2>\
-            <bottom>'+ Rummy.shuffle[pick][1] + '</bottom>';
-        }
-        else {
-            paper.innerHTML = '\
+                  <small>'+ card.rank + '</small>\
+                  <h2 class="Joker">'+ card.suitUnicode + '</h2>\
+            <bottom>'+ card.rank + '</bottom>';
+                }
+                else {
+                    paper.innerHTML = '\
               <input type=button onclick=flip(this.parentNode) ontouchstart=flip(this.parentNode)>\
-              <small>'+ Rummy.shuffle[pick][1] + Rummy.shuffle[pick][0] + '</small>\
-              <h2>'+ Rummy.shuffle[pick][1] + Rummy.shuffle[pick][0] + '</h2>\
-        <bottom>'+ Rummy.shuffle[pick][1] + Rummy.shuffle[pick][0] + '</bottom>';
-        }
+              <small>'+ card.rank + ' ' + card.suitUnicode + '</small>\
+              <h2>'+ card.rank + ' ' + card.suitUnicode + '</h2>\
+        <bottom>'+ card.rank + ' ' + card.suitUnicode + '</bottom>';
+                }
 
-        paper.setAttribute('data-suit', Rummy.shuffle[pick][0]);
-        paper.setAttribute('data-card', Rummy.shuffle[pick][1]);
-        Rummy.shuffle.splice(pick, 1);
-        paper.style.top = Rummy.y + 'px';
-        paper.style.left = Rummy.x + 'px';
-        $(paper).appendTo($("#Decks"));
+                paper.setAttribute('data-suit', card.unicode);
+                paper.setAttribute('data-card', card.rank);
 
-        //  console.log($(paper));
+                paper.style.top = RummyApp.y + 'px';
+                paper.style.left = RummyApp.x + 'px';
+                $(paper).appendTo($(`#${player.position}Hand`));
 
-        //document.body.appendChild(paper)
-        paper.addEventListener('mousedown', click);
-        paper.addEventListener('touchstart', click);
-        paper.addEventListener('mousemove', drag);
-        paper.addEventListener('touchmove', drag);
-        paper.addEventListener('mouseup', release);
-        paper.addEventListener('touchend', release);
-        Rummy.y = Rummy.y;
-        Rummy.x = Rummy.x + 2;
-    }
+                //  console.log($(paper));
+
+                //document.body.appendChild(paper)
+                paper.addEventListener('mousedown', click);
+                paper.addEventListener('touchstart', click);
+                // paper.addEventListener('mousemove', drag);
+                // paper.addEventListener('touchmove', drag);
+                paper.addEventListener('mouseup', release);
+                paper.addEventListener('touchend', release);
+                RummyApp.y = RummyApp.y;
+                RummyApp.x = RummyApp.x + 2;
+            }
+            else {
+                l("card not defined"); 
+            }
+
+
+        }); 
+       // RummyApp.x = RummyApp.x + 180; //to Seperate players hands
+        RummyApp.x = 30; 
+    }); 
+
+
+}; 
+
+//easy to log 
+function l(obj) {
+    console.log(obj); 
 }
+
 function click(e) {
     e.preventDefault();
     if (e.target.nodeName === 'article') {
-        Rummy.selected = Date.now();
-        e.target.setAttribute('data-drag', Rummy.selected);
-        e.target.style.zIndex = Rummy.index++;
+        RummyApp.selected = Date.now();
+        e.target.setAttribute('data-drag', RummyApp.selected);
+        e.target.style.zIndex = RummyApp.index++;
     } else if (e.target.nodeName === 'body') {
-        Rummy.selected = '';
+        RummyApp.selected = '';
     }
 }
 function drag(e) {
     e.preventDefault();
-    if (Rummy.selected !== '') {
+    if (RummyApp.selected !== '') {
 
-        var cardParent = $(`article[data-drag=${Rummy.selected}]`).parent().attr('id');
+        var cardParent = $(`article[data-drag=${RummyApp.selected}]`).parent().attr('id');
 
         if (cardParent === "MyHand") {
-            var cursorY = (e.clientY || e.touches[0].clientY) - 87.5 -330; // remove height of the div
+            var cursorY = (e.clientY || e.touches[0].clientY) - 87.5 - 330; // remove height of the div
         }
         else {
             var cursorY = (e.clientY || e.touches[0].clientY) - 87.5;
@@ -118,14 +127,16 @@ function drag(e) {
 
         var cursorX = (e.clientX || e.touches[0].clientX) - 62.5,
 
-        element = document.querySelectorAll('[data-drag="' + Rummy.selected + '"]')[0];
+            element = document.querySelectorAll('[data-drag="' + RummyAppRummyApp.selected + '"]')[0];
         element.style.top = cursorY + 'px';
         element.style.left = cursorX + 'px';
+
+        l(element.style.top);
     }
 }
 function release(e) {
-    element = document.querySelectorAll('[data-drag="' + Rummy.selected + '"]')[0];
-    Rummy.selected = '';
+    element = document.querySelectorAll('[data-drag="' + RummyApp.selected + '"]')[0];
+    RummyApp.selected = '';
 }
 function flip(paper) {
     if (paper.getAttribute('data-flip') == 'flipped') {
@@ -134,38 +145,3 @@ function flip(paper) {
         paper.setAttribute('data-flip', 'flipped');
     }
 }
-function SetHand() {
-
-}
-
-function Deal() {
-
-    $("#MyHand").css("display", "block");
-    var newLeft = 0;
-    $("#Decks").toggle();
-    $("#showDeckHand").html("Show Deck");
-    $('article').each(function (i, a) {
-        jQuery(a)[0].setAttribute("data-flip", "flipped");
-        jQuery(a).detach().appendTo('#MyHand');
-
-        if (i === 12) {
-            return false;
-        }
-    });
-
-
-}
-
-function ToggleDeckHand() {
-    $("#Decks").toggle();
-    $("#MyHand").toggle();
-    $("#showDeckHand").html($("#showDeckHand").html() == "Show Deck" ? "Show Hand" : "Show Deck");
-}
-
-function ResetGame() {
-    $("#Decks").empty();
-    Rummy.x = 30;
-    Rummy.y = 20;
-
-}
-
