@@ -3,7 +3,8 @@
     size: 0,
     index: 100,
     x: 30,
-    y: 20
+    y: 20, 
+    DeckCount: 2
 }; 
 
 $(document).ready(function () {
@@ -24,20 +25,25 @@ RummyApp.InitializeGameSetup = function () {
     var pool = new Pool(DeckCount, PlayerNamesString, CutOffWeight, DropWeight, MiddleDropWeight);
 
     RummyApp.Pool = pool;
+   // l(pool.cards);
 
    // l(RummyApp);
 }; 
 
 RummyApp.StartNextGame = function () {
+    $("#AllHands").empty(); 
+    RummyApp.CurrentGame = null; //Reset prev obj
+
     var currentGame = RummyApp.Pool.startNextGame();
     RummyApp.CurrentGame = currentGame;
     currentGame.cutDeck(); // At this point of time Players have cards
 
-    l(RummyApp);
+    alert("Cards are Dealt press Show All Hands"); 
+   // l(RummyApp);
 }; 
 
 RummyApp.ShowAllHands = function () {
-    l(RummyApp.CurrentGame.players); 
+   // l(RummyApp.CurrentGame.players); 
     RummyApp.CurrentGame.players.forEach(function (player, i) {
         l(player.name); 
         l($("#AllHands")); 
@@ -54,7 +60,7 @@ RummyApp.ShowAllHands = function () {
                     paper.innerHTML = '\
                   <input type=button onclick=flip(this.parentNode) ontouchstart=flip(this.parentNode)>\
                   <small>'+ card.rank + '</small>\
-                  <h2 class="Joker">'+ card.suitUnicode + '</h2>\
+                  <h2 class="Joker">'+ "JKR" + '</h2>\
             <bottom>'+ card.rank + '</bottom>';
                 }
                 else {
@@ -65,7 +71,7 @@ RummyApp.ShowAllHands = function () {
         <bottom>'+ card.rank + ' ' + card.suitUnicode + '</bottom>';
                 }
 
-                paper.setAttribute('data-suit', card.unicode);
+                paper.setAttribute('data-suit', card.suitUnicode);
                 paper.setAttribute('data-card', card.rank);
 
                 paper.style.top = RummyApp.y + 'px';

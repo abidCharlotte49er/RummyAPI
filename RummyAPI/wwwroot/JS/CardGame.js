@@ -104,7 +104,10 @@ function createDeck(){
 	//add 2 jokers
 	cards[i++] = new Card('X');
 	cards[i++] = new Card('X');
-	
+
+    //ABID We are getting all 2 decks 
+    //cards.forEach(function (card, i) { l(card); l(i); }); 
+
 	return cards;
 }
 
@@ -224,15 +227,20 @@ Node.prototype.toString = function(){
 
 var GameState = {CUT_DECK: 1, CUT_JOKER: 2, PICK_CARD: 3, DISCARD: 4, SHOW: 5, END: 6}
 
+//ABID get deck of Cards 
+function GatherCardsToDeal(deckCount) {
+    //create card decks
+    var cards = [];
+
+    for (i = 0; i < deckCount; ++i) {
+        var deckCards = createDeck();
+        cards = cards.concat(deckCards);
+    }
+    return cards; 
+}
+
 function Pool(deckCount, playerNames, cutOffWeight, dropWeight, middleDropWeight){
-	//create card decks
-	var cards = [];
-	
-	for(i = 0; i < deckCount; ++i){
-		var deckCards = createDeck();
-		cards = cards.concat(deckCards);
-	}
-	
+
 	//create Players
 	var players = [];
 	
@@ -243,8 +251,9 @@ function Pool(deckCount, playerNames, cutOffWeight, dropWeight, middleDropWeight
 	tokens.forEach(function(name){
 		players.push(new Player(self, name, position++));
 	});
-	
-	this.cards = cards;
+
+    this.deckCount = deckCount; //ABID init deckCount here 
+    this.cards = [];//ABID We get cards in startNextGame just init here. 
 	this.players = players;
 	this.openerIndex = 0;
 	this.games = [];
@@ -254,7 +263,13 @@ function Pool(deckCount, playerNames, cutOffWeight, dropWeight, middleDropWeight
     return this;  
 }
 
-Pool.prototype.startNextGame = function(){
+Pool.prototype.startNextGame = function () {
+
+    this.players.forEach(function (player) { player.cards = []; }); //ABID Resetting players hand; 
+    //Chacha in the 2nd approach you suggested we can send player cards, discarded cards to GatherCardsToDeal()
+    this.cards = GatherCardsToDeal(this.deckCount); 
+    
+    l(this.cards); 
 	var game = new Game(this, this.cards, this.players, this.openerIndex);
 	this.games.push(game);
 	
@@ -267,7 +282,6 @@ Pool.prototype.startNextGame = function(){
             this.players[i].isMiddleDropped = false;
 		}
 	}
-	
 	return game;
 }
 
@@ -293,7 +307,7 @@ Game.prototype.cutDeck = function(index){
 	var self = this;
 	for(c = 0; c < 13; ++c){
 		this.players.forEach(function(player){
-			player.cards.push(self.cards.shift());
+            player.cards.push(self.crds.shift());
 		});
 	}
 	
