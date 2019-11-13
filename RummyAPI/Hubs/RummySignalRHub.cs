@@ -70,7 +70,7 @@ namespace RummyAPI.Hubs
                     }
                     dbContext.SaveChanges(); 
                 }
-                await Clients.All.SendAsync("UsersJoined", players); 
+                await Clients.All.SendAsync("PlayersJoined", players); 
             }
             catch(Exception ex)
             {

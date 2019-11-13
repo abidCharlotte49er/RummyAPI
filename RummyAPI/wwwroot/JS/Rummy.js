@@ -45,8 +45,12 @@ function AddEventHandlers() {
 
 }
 function RegisterHubEvents() {
-    RummyApp.HubConnection.on("UsersJoined", function (users) {
-        console.log(users + " joined");
+    RummyApp.HubConnection.on("PlayersJoined", function (players) {
+        var names = ""; 
+        players.forEach(function (player) {
+            names += player.name + ", "; 
+        }); 
+        alert(names + " joined game and their names are coming through Signal R"); 
     });
 }
 
