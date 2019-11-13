@@ -4,39 +4,107 @@
     index: 100,
     x: 30,
     y: 20, 
-    DeckCount: 2
+    DeckCount: 2, 
+    HubConnection: null
 }; 
 
-$(document).ready(function () {
-    RummyApp.InitializeGameSetup(); //Initializes game setup, decks, players, all variables 
-    $("#BtnStartNewGame").on("click", function () { RummyApp.StartNextGame(); }); 
-    $("#BtnShowAllHands").on("click", function () { RummyApp.ShowAllHands(); }); 
 
+$(document).ready(function () {
+
+    SetupHub(); //To setup SignalR Hub and connections 
+    AddEventHandlers(); 
+
+    RummyApp.InitializeGameSetup(); //Initializes game setup, decks, players, all variables 
+    RegisterHubEvents(); 
 }); 
 
+function SetupHub() {
+
+    RummyApp.HubConnection = new signalR.HubConnectionBuilder().withUrl("/rummyHub").build();
+
+    RummyApp.HubConnection.start().then(function () {
+        console.log("HubConnection started");
+    }).catch(function (err) {
+        return console.error(err.toString());
+    });
+
+}
+function AddEventHandlers() {
+    $("#PlayerView").hide();
+    $("#BtnAdminPlayerView").on("click", function () {
+        $("#AdminView").toggle();
+        $("#PlayerView").toggle();
+    }); 
+
+    $("#BtnAddPlayers").on("click", function () {
+        RummyApp.AddPlayers(); 
+    }); 
+    $("#BtnStartNewGame").on("click", function () { RummyApp.StartNextGame(); });
+    $("#BtnShowAllHands").on("click", function () { RummyApp.ShowAllHands(); });
+
+
+}
+function RegisterHubEvents() {
+    RummyApp.HubConnection.on("UsersJoined", function (users) {
+        console.log(users + " joined");
+    });
+}
+
 RummyApp.InitializeGameSetup = function () {
-    RummyApp.DeckCount = 2;
-    RummyApp.PlayerNamesString = "Baji, Basheer, Abid, Azim, Ameem";
+    RummyApp.DeckCount = 1; //2;
+    RummyApp.PlayerNamesString = "Baji, Basheer";  //"Baji, Basheer, Abid, Azim, Ameem";
     RummyApp.CutOffWeight = 250,
-        RummyApp.DropWeight = 20;
+    RummyApp.DropWeight = 20;
     RummyApp.MiddleDropWeight = 40;
     const { DeckCount, PlayerNamesString, CutOffWeight, DropWeight, MiddleDropWeight } = RummyApp;
 
-    var pool = new Pool(DeckCount, PlayerNamesString, CutOffWeight, DropWeight, MiddleDropWeight);
-
-    RummyApp.Pool = pool;
-   // l(pool.cards);
+    RummyApp.Pool = new Pool(DeckCount, PlayerNamesString, CutOffWeight, DropWeight, MiddleDropWeight);
 
    // l(RummyApp);
 }; 
 
+function callHub() {
+    RummyApp.HubConnection.invoke("SetupPlayers", "Ab").catch(function (err) {
+        return console.error(err.toString());
+    });
+}
+
+RummyApp.AddPlayers = function () {
+    var playersVals = $("#inptPlayers").val();
+
+    if (playersVals) {
+        var playersArray = playersVals.split(","); 
+        var playersToAdd = []; 
+
+        playersArray.forEach(function (pa) {
+            var player = pa.split(":"); 
+
+            if (player.length == 2) {
+
+                var p = {
+                    "Name": player[0],
+                    "Position": player[1]
+                };
+
+                playersToAdd.push(p); 
+            }
+        }); 
+
+        RummyApp.HubConnection.invoke("AddPlayers", playersToAdd).catch(function (err) {
+            return console.error(err.toString());
+        });
+    }
+    else {
+        alert("enter Players"); 
+    }
+    
+}; 
+
 RummyApp.StartNextGame = function () {
     $("#AllHands").empty(); 
-    RummyApp.CurrentGame = null; //Reset prev obj
+    RummyApp.CurrentGame = RummyApp.Pool.startNextGame();
 
-    var currentGame = RummyApp.Pool.startNextGame();
-    RummyApp.CurrentGame = currentGame;
-    currentGame.cutDeck(); // At this point of time Players have cards
+    RummyApp.CurrentGame.cutDeck(); // At this point of time Players have cards
 
     alert("Cards are Dealt press Show All Hands"); 
    // l(RummyApp);
@@ -58,14 +126,14 @@ RummyApp.ShowAllHands = function () {
 
                 if (card.face === "X") {
                     paper.innerHTML = '\
-                  <input type=button onclick=flip(this.parentNode) ontouchstart=flip(this.parentNode)>\
-                  <small>'+ card.rank + '</small>\
-                  <h2 class="Joker">'+ "JKR" + '</h2>\
-            <bottom>'+ card.rank + '</bottom>';
+                  <input type=button class="cardFlippers" onclick=flip(this.parentNode) ontouchstart=flip(this.parentNode)>\
+                  <small>'+ "🃏" + '</small>\
+                  <h2 class="Joker">'+ "🃏" + '</h2>\
+            <bottom>'+ "🃏" + '</bottom>';
                 }
                 else {
                     paper.innerHTML = '\
-              <input type=button onclick=flip(this.parentNode) ontouchstart=flip(this.parentNode)>\
+              <input type=button class="cardFlippers" onclick=flip(this.parentNode) ontouchstart=flip(this.parentNode)>\
               <small>'+ card.rank + ' ' + card.suitUnicode + '</small>\
               <h2>'+ card.rank + ' ' + card.suitUnicode + '</h2>\
         <bottom>'+ card.rank + ' ' + card.suitUnicode + '</bottom>';

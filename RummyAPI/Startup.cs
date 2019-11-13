@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RummyAPI.Controllers;
 using RummyAPI.Hubs;
+using RummyAPI.Models;
 
 namespace RummyAPI
 {
@@ -27,7 +29,9 @@ namespace RummyAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddSignalR(); 
+            services.AddSignalR();
+            services.AddEntityFrameworkSqlite(); 
+            services.AddDbContext<RummyDbContext>(options => options.UseSqlite(@"Data Source =.\RummyDb.db")); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,7 +44,13 @@ namespace RummyAPI
 
             app.UseStaticFiles();
             app.UseMvc();
-            app.UseSignalR(routes=> { routes.MapHub<RummySignalRHub>("/turn"); }); 
+            app.UseSignalR(routes=> 
+            {
+                routes.MapHub<RummySignalRHub>("/rummyHub");
+            });
+            
+         //   RummyDbContext dbCont = new RummyDbContext();  
+
         }
     }
 }

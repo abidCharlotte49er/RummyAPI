@@ -6,10 +6,11 @@
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <title></title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="CSS/Bootstrap431.css" rel="stylesheet" />
     <link href="CSS/Rummy.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js" type="text/javascript"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aspnet-signalr/1.1.4/signalr.js" type="text/javascript"></script>
@@ -17,14 +18,44 @@
 </head>
 <body>
     <!--<button id="BtnCreatePool">Create Pool ? Automatic </button>-->
-    <button id="BtnStartNewGame">Start New Game</button>
-    <button id="BtnShowAllHands">Show All Hands</button>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <button id="BtnAdminPlayerView" class="btn btn-primary">Admin / Player View</button>
+            </div>
+        </div>
+
+        <div id="AdminView" class="row form-group">
+            <div class="col-12">
+                <p class="col-12">Admin's View</p>
+            </div>
+            <div class="col-2">
+                <button id="BtnAddPlayers" class="btn btn-danger">Admin: Add Players</button>
+            </div>
+            <div class="col-10">
+                <input id="inptPlayers" class="form-control" type="text" placeholder="Name1:position,Name2:position" />
+            </div>
+            <div class="col-3">
+                <button id="BtnStartNewGame" class="btn btn-secondary">Start New Game</button>
+                <button id="BtnShowAllHands" class="btn btn-danger">Show All Hands</button>
+            </div>
+            <div class="col-12">
+                <div id="AllHands"></div>
+            </div>
+        </div>
+        <div id="PlayerView" class="row">
+            <div class="col-12">
+                <p class="col-12">Player's View</p>
+            </div>
+            <div class="col-12">
+                <div id="MyHand" style="display:block">&nbsp;</div>
+            </div>
+        </div>
+    </div>
     <!--<button id="set" onclick="SetHand()">Set hand</button>
      <div id="Decks">&nbsp;</div>-->
 
-    <div id="MyHand" style="display:none">&nbsp;</div>
 
-    <div id="AllHands"></div>
 
 
     <!-- <div id="HandHolder">

@@ -14,15 +14,22 @@ namespace RummyAPI.Hubs
     public class RummySignalRHub : Hub
     {
 
-        public Game Game = new Game(); 
+        public Game Game = new Game();
+        private RummyDbContext dbContext; 
 
-        public RummySignalRHub()
+        public RummySignalRHub(RummyDbContext dbc)
         {
-            using (StreamReader sr = new StreamReader("GameData.json"))
-            {
-                string json = sr.ReadToEnd();
-                Game = JsonConvert.DeserializeObject<Game>(json); 
-            }
+            dbContext = dbc;
+            //Player p = dbContext.Players.FirstOrDefault(); 
+
+
+        }
+
+        public override async Task OnConnectedAsync()
+        {
+            Console.WriteLine($"{Context.User.ToString()}");
+            //await Clients.Caller.SendAsync(); 
+            await base.OnConnectedAsync();
         }
 
         #region Private Methods 
@@ -31,9 +38,6 @@ namespace RummyAPI.Hubs
         {
             try
             {
-                var newJsonData = JsonConvert.SerializeObject(game);
-
-                File.WriteAllText("GameData.json", newJsonData); 
             }
             catch (Exception ex)
             {
@@ -46,6 +50,34 @@ namespace RummyAPI.Hubs
 
         #region Signal R Hub endpoints 
         
+        public async Task AddPlayers(List<Player> players)
+        {
+            ResponseDTO resp = new ResponseDTO { Success = false, Data = null };
+
+            try
+            {
+                foreach(Player player in players)
+                {
+                    Player dbPlayer = dbContext.Players.FirstOrDefault(p => p.Name == player.Name); 
+
+                    if(dbPlayer ==null)
+                    {
+                        dbContext.Players.Add(player); 
+                    }
+                    else
+                    {
+                        dbPlayer.Position = player.Position; //Just update his position 
+                    }
+                    dbContext.SaveChanges(); 
+                }
+                await Clients.All.SendAsync("UsersJoined", players); 
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+        }
         public async Task WhoseTurn(int gameID)
         {
             ResponseDTO resp = new ResponseDTO { Success = false, Data = null };
@@ -121,3 +153,17 @@ namespace RummyAPI.Hubs
     https://www.codemag.com/Article/1807061/Build-Real-time-Applications-with-ASP.NET-Core-SignalR
 
      */
+
+/*
+ * OLD Code 
+             using (StreamReader sr = new StreamReader("GameData.json"))
+        {
+            string json = sr.ReadToEnd();
+            Game = JsonConvert.DeserializeObject<Game>(json); 
+        }
+
+                    var newJsonData = JsonConvert.SerializeObject(game);
+
+                File.WriteAllText("GameData.json", newJsonData); 
+
+ */
