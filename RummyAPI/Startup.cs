@@ -29,7 +29,11 @@ namespace RummyAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddSignalR();
+            services.AddSignalR(hubOptions=> {
+                hubOptions.ClientTimeoutInterval = new TimeSpan(5,5,5); //5 Hours 
+                hubOptions.HandshakeTimeout = new TimeSpan(5, 5, 5); //5 Hours 
+                hubOptions.KeepAliveInterval = new TimeSpan(5, 5, 5); //5 Hours 
+            });
             services.AddEntityFrameworkSqlite(); 
             services.AddDbContext<RummyDbContext>(options => options.UseSqlite(@"Data Source =.\RummyDb.db")); 
         }

@@ -20,17 +20,57 @@ namespace RummyAPI.Hubs
         public RummySignalRHub(RummyDbContext dbc)
         {
             dbContext = dbc;
-            //Player p = dbContext.Players.FirstOrDefault(); 
-
-
         }
 
+        #region On Connected Disconnected 
+
+        //Things that should happen when Client Connects 
         public override async Task OnConnectedAsync()
         {
-            Console.WriteLine($"{Context.User.ToString()}");
+            //Find user with his connection ID
+            Player ConnectedPlayer = dbContext.Players.FirstOrDefault(p => p.HubConnectionId == Context.ConnectionId); 
+
+            if(ConnectedPlayer ==null)
+            {
+                ConnectedPlayer = new Player(); 
+                AssignCommonProps();
+                dbContext.Players.Add(ConnectedPlayer); 
+            }
+            else
+            {
+                AssignCommonProps();
+            }
+
+            void AssignCommonProps()
+            {
+                ConnectedPlayer.IsActive = true;
+                ConnectedPlayer.HubConnectionId = Context.ConnectionId;
+            }
+
+            dbContext.SaveChanges();
+
+            await Clients.Caller.SendAsync("C_OnConnected", ConnectedPlayer);
+
             //await Clients.Caller.SendAsync(); 
             await base.OnConnectedAsync();
         }
+
+        //Things that should happen when Client Disconnects 
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            Player DisconnectedPlayer = dbContext.Players.FirstOrDefault(p => p.HubConnectionId == Context.ConnectionId);
+
+            if(DisconnectedPlayer != null)
+            {
+                DisconnectedPlayer.IsActive = false; 
+            }
+
+            dbContext.SaveChanges(); 
+
+            await base.OnDisconnectedAsync(exception);
+        }
+
+        #endregion 
 
         #region Private Methods 
 
@@ -50,6 +90,7 @@ namespace RummyAPI.Hubs
 
         #region Signal R Hub endpoints 
         
+
         public async Task AddPlayers(List<Player> players)
         {
             ResponseDTO resp = new ResponseDTO { Success = false, Data = null };
@@ -58,19 +99,34 @@ namespace RummyAPI.Hubs
             {
                 foreach(Player player in players)
                 {
-                    Player dbPlayer = dbContext.Players.FirstOrDefault(p => p.Name == player.Name); 
+                    //Find player by Context Connection ID Or Name  
+                    Player dbPlayer = dbContext.Players
+                                .FirstOrDefault(p => p.HubConnectionId == Context.ConnectionId 
+                                                  || p.Name == player.Name
+                                                  || p.RummyCookieId == player.RummyCookieId);
 
                     if(dbPlayer ==null)
                     {
-                        dbContext.Players.Add(player); 
+                        SaveCommonProps();
+                        dbContext.Players.Add(player);
                     }
                     else
                     {
-                        dbPlayer.Position = player.Position; //Just update his position 
+                        SaveCommonProps();
                     }
-                    dbContext.SaveChanges(); 
+
+                    void SaveCommonProps()
+                    {
+                        dbPlayer.Name = player.Name;
+                        dbPlayer.RummyCookieId = player.RummyCookieId; 
+                        dbPlayer.HubConnectionId = Context.ConnectionId; 
+                        dbPlayer.Position = player.Position;
+                    }
+
+                    dbContext.SaveChanges();
+                    await Clients.All.SendAsync("OnPlayerJoined", dbPlayer); 
                 }
-                await Clients.All.SendAsync("PlayersJoined", players); 
+
             }
             catch(Exception ex)
             {
@@ -78,6 +134,32 @@ namespace RummyAPI.Hubs
             }
 
         }
+
+        public async Task DealPlayerCards(Player plyr)
+        {
+            ResponseDTO resp = new ResponseDTO { Success = false, Data = null };
+
+            try
+            {
+                Player player = dbContext.Players.FirstOrDefault(p => p.Name == plyr.Name);
+
+                if (player != null && !String.IsNullOrEmpty(player.HubConnectionId))
+                {
+                    player.Cards = plyr.Cards; //Assign cards we got from Client; 
+                    await Clients.Client(player.HubConnectionId).SendAsync("OnDealingCards", player);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        public async Task SaveGameCards(List<Card> Cards)
+        {
+
+        }
+
         public async Task WhoseTurn(int gameID)
         {
             ResponseDTO resp = new ResponseDTO { Success = false, Data = null };
@@ -141,6 +223,24 @@ namespace RummyAPI.Hubs
 
             }
         }
+
+        public async Task SendMessageToPlayer(string name)
+        {
+            ResponseDTO resp = new ResponseDTO { Success = false, Data = null };
+            try
+            {
+                Player player = dbContext.Players.FirstOrDefault(p => p.Name == name);
+                if(player!=null && ! String.IsNullOrEmpty(player.HubConnectionId))
+                {
+                    await Clients.Client(player.HubConnectionId).SendAsync("OnSendMessageToPlayer", player);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
 
         #endregion
     }

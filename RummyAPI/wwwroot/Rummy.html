@@ -27,13 +27,13 @@
 
         <div id="AdminView" class="row form-group">
             <div class="col-12">
-                <p class="col-12">Admin's View</p>
+                <h1 class="col-12">Admin's View</h1>
             </div>
             <div class="col-2">
                 <button id="BtnAddPlayers" class="btn btn-danger">Admin: Add Players</button>
             </div>
             <div class="col-10">
-                <input id="inptPlayers" class="form-control" type="text" placeholder="Name1:position,Name2:position" />
+                <input id="inptPlayers" class="form-control" type="text" placeholder="Name1-position,Name2-position" />
             </div>
             <div class="col-3">
                 <button id="BtnStartNewGame" class="btn btn-secondary">Start New Game</button>
@@ -45,11 +45,22 @@
         </div>
         <div id="PlayerView" class="row">
             <div class="col-12">
-                <p class="col-12">Player's View</p>
+                <h1 class="col-12" id="Player">Player's View</h1>
+            </div>
+            <div class="col-2">
+                <button id="BtnJoinGame" class="btn btn-danger">Join Game</button>
+                <button id="BtnSendMessage" class="btn btn-danger">Send Message</button>
+            </div>
+            <div class="col-10">
+                <input id="inptPlayerName" class="form-control" type="text" placeholder="Name" />
+                <input id="inptPlayerPosition" class="form-control" type="text" placeholder="Position" />
             </div>
             <div class="col-12">
                 <div id="MyHand" style="display:block">&nbsp;</div>
             </div>
+        </div>
+        <div id="logger">
+
         </div>
     </div>
     <!--<button id="set" onclick="SetHand()">Set hand</button>
